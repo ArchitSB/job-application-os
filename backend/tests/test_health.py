@@ -41,4 +41,4 @@ def test_database_failure_is_sanitized(client):
     client.app.dependency_overrides[get_session] = lambda: session
     response = client.get("/health/db")
     assert response.status_code == 503
-    assert response.json() == {"detail": "Database unavailable"}
+    assert response.json() == {"error": {"code": "http_503", "message": "Database unavailable"}}

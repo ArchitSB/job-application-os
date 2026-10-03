@@ -12,3 +12,13 @@ build/
 dist/
 .coverage
 htmlcov/
+
+.cache/
+.ruff_cache/
+node_modules/
+*.tsbuildinfo
+resumes/*.pdf
+frontend/test-results/
+frontend/playwright-report/
+
+.playwright-mcp/

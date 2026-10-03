@@ -8,7 +8,9 @@ from app.db.session import get_engine
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(os.getenv("RUN_DB_TESTS") != "1", reason="Set RUN_DB_TESTS=1 with a migrated PostgreSQL database"),
+    pytest.mark.skipif(
+        os.getenv("RUN_DB_TESTS") != "1", reason="Set RUN_DB_TESTS=1 with a migrated PostgreSQL database"
+    ),
 ]
 
 
@@ -40,14 +42,15 @@ def test_defaults_constraints_duplicate_lookup_and_update_trigger():
             assert first["id"] != second["id"]
             assert first["status"] == "discovered"
             assert first["created_at"].tzinfo is not None
-            updated = connection.execute(text(
-                "UPDATE applications SET notes = 'changed' WHERE id = :id RETURNING updated_at"
-            ), {"id": first["id"]}).scalar_one()
+            updated = connection.execute(
+                text("UPDATE applications SET notes = 'changed' WHERE id = :id RETURNING updated_at"),
+                {"id": first["id"]},
+            ).scalar_one()
             assert updated > first["updated_at"]
             with pytest.raises(IntegrityError):
                 with connection.begin_nested():
-                    connection.execute(text(
-                        "UPDATE applications SET status = 'invalid' WHERE id = :id"
-                    ), {"id": first["id"]})
+                    connection.execute(
+                        text("UPDATE applications SET status = 'invalid' WHERE id = :id"), {"id": first["id"]}
+                    )
         finally:
             transaction.rollback()

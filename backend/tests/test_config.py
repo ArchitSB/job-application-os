@@ -9,8 +9,7 @@ def test_dotenv_loading_and_environment_override(tmp_path, monkeypatch):
         monkeypatch.delenv(name, raising=False)
     env_file = tmp_path / ".env"
     env_file.write_text(
-        "DATABASE_URL=postgresql+psycopg://localhost/config_test\n"
-        "APP_NAME=From dotenv\nENVIRONMENT=test\n"
+        "DATABASE_URL=postgresql+psycopg://localhost/config_test\nAPP_NAME=From dotenv\nENVIRONMENT=test\n"
     )
     settings = Settings(_env_file=env_file)
     assert settings.app_name == "From dotenv"

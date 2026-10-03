@@ -1,0 +1,44 @@
+# Merge this entry into your existing mcp_servers mapping; do not replace other servers.
+mcp_servers:
+  job_application_os:
+    command: /home/archit/Drive-D/Agentic-AI/job-application-os/.venv/bin/python
+    args: ["-m", "backend.mcp.server"]
+    cwd: /home/archit/Drive-D/Agentic-AI/job-application-os
+    env:
+      JOB_OS_API_URL: http://127.0.0.1:8000
+    enabled: true
+    protocol: auto
+    connect_timeout: 20
+    timeout: 180
+    supports_parallel_tool_calls: false
+    trust: full
+    elicitation:
+      enabled: true
+      timeout: 120
+    tools:
+      resources: false
+      prompts: false
+      include:
+        - create_job_lead
+        - search_job_leads
+        - get_job_lead
+        - update_job_lead
+        - convert_lead_to_application
+        - check_application_duplicate
+        - create_application
+        - get_application
+        - search_applications
+        - update_application
+        - update_application_status
+        - record_application_event
+        - get_application_events
+        - create_email_draft
+        - get_email_draft
+        - search_email_drafts
+        - approve_email_draft
+        - list_resume_profiles
+        - get_dashboard_summary
+        - search_companies
+        - get_company
+        - search_contacts
+        - get_contact
