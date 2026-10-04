@@ -4,6 +4,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.routes.health import router as health_router
 from app.api.routes.integration import router as integration_router
+from app.api.routes.lead_hunter import router as lead_hunter_router
 from app.api.routes.platform import router as platform_router
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers
@@ -28,5 +29,6 @@ def create_app() -> FastAPI:
     install_error_handlers(application)
     application.include_router(health_router)
     application.include_router(integration_router)
+    application.include_router(lead_hunter_router)
     application.include_router(platform_router)
     return application

@@ -17,6 +17,8 @@ from mcp_types import ElicitResult
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = {
+    "get_lead_hunter_context",
+    "ingest_lead_research",
     "create_job_lead",
     "search_job_leads",
     "get_job_lead",

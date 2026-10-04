@@ -12,6 +12,7 @@ from backend.mcp.tools import (
     dashboard,
     email_drafts,
     events,
+    lead_hunter,
     leads,
     resumes,
 )
@@ -30,7 +31,17 @@ def create_server(api: APIClient | None = None) -> MCPServer:
         ),
     )
     client = api or APIClient()
-    for module in (leads, applications, events, companies, contacts, resumes, email_drafts, dashboard):
+    for module in (
+        leads,
+        applications,
+        events,
+        companies,
+        contacts,
+        resumes,
+        email_drafts,
+        dashboard,
+        lead_hunter,
+    ):
         module.register(server, client)
     return server
 

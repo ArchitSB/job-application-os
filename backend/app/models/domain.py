@@ -17,7 +17,7 @@ from sqlalchemy import (
     func,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -51,6 +51,7 @@ class JobLead(Record, Base):
         ),
         CheckConstraint("fit_score IS NULL OR (fit_score >= 0 AND fit_score <= 100)", name="fit_score_range"),
         Index("ix_job_leads_company_role", "company_id", "normalized_role_title"),
+        Index("ix_job_leads_identity_urls", "identity_urls", postgresql_using="gin"),
     )
     company_id: Mapped[UUID] = mapped_column(ForeignKey("companies.id", ondelete="RESTRICT"))
     company_name: Mapped[str] = mapped_column(String(255))
@@ -61,6 +62,8 @@ class JobLead(Record, Base):
     employment_type: Mapped[str | None] = mapped_column(String(100))
     source: Mapped[str] = mapped_column(String(50), index=True)
     source_url: Mapped[str | None] = mapped_column(Text)
+    research: Mapped[dict | None] = mapped_column(JSONB)
+    identity_urls: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default=text("'{}'::text[]"))
     job_url: Mapped[str | None] = mapped_column(Text)
     application_url: Mapped[str | None] = mapped_column(Text)
     external_job_id: Mapped[str | None] = mapped_column(String(255), index=True)

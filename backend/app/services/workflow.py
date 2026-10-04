@@ -17,6 +17,7 @@ from app.models import (
     ResumeProfile,
 )
 from app.schemas.domain import ApplicationCreate, DuplicateCheck, Rules
+from app.schemas.research import LeadResearch
 from app.services.duplicates import check_duplicate
 from app.services.normalization import normalize_company, normalize_text, normalize_url
 
@@ -208,8 +209,13 @@ def save_application(session: Session, data: dict, actor: str, record_id: UUID |
     return record
 
 
-def save_lead(session: Session, data: dict, actor: str, record_id=None):
+def save_lead(session: Session, data: dict, actor: str, record_id=None, *, commit: bool = True):
+    if data.get("research") is not None:
+        data["research"] = LeadResearch.model_validate(data["research"]).model_dump(mode="json")
     record = get_record(session, JobLead, record_id, lock=True) if record_id else None
+    identity_changed = record is None or any(
+        key in data and data[key] != getattr(record, key) for key in ("job_url", "application_url")
+    )
     if data.get("status") == "converted":
         raise HTTPException(409, "Create an application to convert a lead")
     if record and record.status == "converted" and data.get("status", "converted") != "converted":
@@ -232,6 +238,10 @@ def save_lead(session: Session, data: dict, actor: str, record_id=None):
     else:
         record = JobLead(**data)
         session.add(record)
+    if identity_changed:
+        record.identity_urls = sorted(
+            {normalize_url(url) for url in (record.job_url, record.application_url) if url}
+        )
     session.flush()
     kind = (
         "lead_created"
@@ -241,8 +251,11 @@ def save_lead(session: Session, data: dict, actor: str, record_id=None):
     event(
         session, kind, actor, lead=record, metadata={"previous_status": old_status, "status": record.status}
     )
-    session.commit()
-    session.refresh(record)
+    if commit:
+        session.commit()
+        session.refresh(record)
+    else:
+        session.flush()
     return record
 
 

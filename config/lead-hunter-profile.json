@@ -1,0 +1,6 @@
+{
+  "skills": ["Python", "FastAPI", "Node.js", "React", "TypeScript", "PostgreSQL", "MySQL", "MongoDB", "Azure", "Docker", "CI/CD", "AI", "LLM", "Agentic AI", "RAG"],
+  "project_areas": ["backend", "full stack", "AI", "LLM", "RAG", "product discovery", "stakeholder", "requirements"],
+  "experience_years": null,
+  "provenance": "Facts supplied by Archit during project setup: Redseer SDE/product work, IIT Kharagpur backend/field research, freelance engineering/client ownership. Employment tenure is unverified and deliberately unknown. Edit only with user-confirmed facts."
+}

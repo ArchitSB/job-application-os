@@ -55,3 +55,12 @@ personal information, rules or resume profiles. Local PDFs may be placed manuall
 in `resumes/` and registered with `PATCH /resumes/{id}`; absolute paths, traversal,
 non-PDF paths and missing files are rejected. PDF contents are not served by this
 API. Files, `.env`, caches and node_modules are excluded from Git.
+
+## Lead research (0004)
+
+`job_leads.research` is nullable typed JSONB for experience, salary, skills, work
+mode, recruiter LinkedIn, notes, provenance and deterministic score breakdown.
+`identity_urls` is a non-unique GIN-indexed text array of normalized job URLs and
+verified aliases; old rows are backfilled. Additional sightings live in
+append-only lead events, associated with `AutomationRun` research reports. No
+new statuses, application columns or uniqueness constraints were introduced.

@@ -38,8 +38,8 @@ uvicorn app.main:create_app --factory --reload --host 127.0.0.1 --port 8000
 ```
 
 On a fresh checkout, install `python -m pip install -r requirements-dev.lock -e '.[dev,mcp]'`
-and follow the existing README's database/migration setup. No new migration was
-required by the MCP bridge; the database stays at `0003`.
+and follow the existing README's database/migration setup. The original bridge required no migration; Lead Hunter adds migration `0004`.
+Run `.venv/bin/alembic upgrade head` before starting the updated backend.
 
 Run a read-only protocol check:
 
@@ -47,7 +47,7 @@ Run a read-only protocol check:
 .venv/bin/python scripts/check_mcp.py
 ```
 
-It launches a real stdio subprocess, discovers 23 tools, reads resume metadata and
+It launches a real stdio subprocess, discovers 25 tools, reads resume metadata and
 the dashboard, then shuts down the child. It does not create application records.
 
 ## 2. Register with Hermes (manual)
@@ -78,7 +78,7 @@ mcp_servers:
       prompts: false
 ```
 
-The complete configuration additionally allowlists the exact 23 tools, preventing
+The complete configuration additionally allowlists the exact 25 tools, preventing
 future server additions from being enabled silently. `trust: full` is appropriate
 for this repository-owned bridge: ordinary record mutations do not ask for extra
 Hermes transport approval. The email approval tool still requires its own human
@@ -116,6 +116,8 @@ patches take the UUID plus `changes`. Retrieval takes the resource UUID.
 
 | Tool | Purpose / side effects |
 |---|---|
+| `get_lead_hunter_context` | Read current career profile, active resume descriptions, rules and confirmed matching facts; no credentials. |
+| `ingest_lead_research` | Accept a `data` batch of source-supported results; normalize, score, deduplicate against leads/applications and store leads with audit history. dry_run writes nothing. No applications or drafts created. |
 | `create_job_lead` | Capture a lead with `company_name`, role, source, description, location, URLs, posted date and contacts. Resolves/creates a company through the API in the lead transaction; returns lead, company and duplicate information. Optional company_id disambiguates existing names. |
 | `search_job_leads` | Read paginated leads with text/status/source/resume/date filters. |
 | `get_job_lead` | Retrieve one lead by lead_id. |
@@ -202,3 +204,12 @@ PostgreSQL changes inside an outer rollback. They cover discovery, every exposed
 tool, normalized intake, duplicates, approval acceptance/refusal/cancellation,
 missing consent support, stale content, no ORM imports, fixed local origin and
 no arbitrary/external-action tool surface.
+
+## Lead Hunter workflow
+
+The original 23 tools remain; `get_lead_hunter_context` reads current matching inputs,
+and `ingest_lead_research` performs deterministic lead matching/deduplication/intake.
+See [Lead Hunter setup, parameters and examples](lead-hunter.md). The repository
+skill is `.hermes/skills/lead-hunter/SKILL.md`; launch Hermes from this checkout and
+trust project skills once with `hermes skills trust`, then `/reload-skills` and
+`/reload-mcp`. No existing Hermes configuration was changed automatically.

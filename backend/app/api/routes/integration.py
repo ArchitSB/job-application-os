@@ -3,41 +3,18 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 from app.api.routes.platform import DB, Actor
 from app.models import Application, Company, Contact, EmailDraft
 from app.schemas.domain import CompanyRead, ContactRead, DraftRead, DuplicateResult, LeadRead
 from app.schemas.integration import DraftApproval, DuplicateByCompany, LeadIntake, LeadIntakeResult
+from app.services.companies import resolve_company
 from app.services.duplicates import check_duplicate
 from app.services.normalization import normalize_company
 from app.services.workflow import event, get_record, save_draft, save_lead
 
 router = APIRouter(tags=["integration helpers"])
-
-
-def resolve_company(db, name: str, company_id: UUID | None = None, *, create=False):
-    normalized = normalize_company(name)
-    if not normalized:
-        raise HTTPException(422, "Company name must contain letters or numbers")
-    if company_id:
-        company = get_record(db, Company, company_id)
-        if company.normalized_name != normalized:
-            raise HTTPException(422, "company_id does not match company_name")
-        return company
-    matches = db.scalars(select(Company).where(Company.normalized_name == normalized).limit(2)).all()
-    if len(matches) > 1:
-        raise HTTPException(
-            409, "Company name is ambiguous. Search companies and supply the correct company_id."
-        )
-    if matches:
-        return matches[0]
-    if not create:
-        return None
-    company = Company(name=name, normalized_name=normalized)
-    db.add(company)
-    db.flush()
-    return company
 
 
 @router.get("/contacts/{record_id}", response_model=ContactRead)

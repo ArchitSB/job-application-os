@@ -2,8 +2,9 @@
 
 A local application-management platform for Archit Singh Baghel: capture leads,
 review opportunities, choose a resume, prepare applications and email drafts,
-and keep a reliable history. PostgreSQL is the source of truth. Future Hermes
-operators will consume this API; no agents or external automation run today.
+and keep a reliable history. PostgreSQL is the source of truth. Hermes uses the MCP bridge, and the first Lead Hunter skill researches public
+opportunities and stores deduplicated leads. No email sending or external job
+submission is implemented.
 
 ## Stack and layout
 
@@ -14,7 +15,7 @@ PostgreSQL 18. The UI uses React, TypeScript, Vite and Tailwind CSS.
 backend/app/       models, schemas, routes, deterministic services and configuration
 backend/tests/     unit and transaction-isolated PostgreSQL API tests
 frontend/          dashboard, lists, forms, settings and event history
-alembic/           preserved 0001 and additive 0002/0003 migrations
+alembic/           preserved 0001 and additive 0002–0004 migrations
 scripts/           optional project role/database provisioning
 resumes/           manually supplied PDFs (ignored by Git)
 docs/              architecture, data model, workflows and Hermes contracts
@@ -146,7 +147,8 @@ changes rolled back. Installing the MCP extra supplies the current test-client t
 
 Alembic owns schema initialization. Migration `0001` is unchanged; `0002` adds the
 platform and preserves/backfills legacy application data; `0003` adds reporting
-indexes and append-only event enforcement. `0002` intentionally refuses a
+indexes and append-only event enforcement; `0004` adds lead research facts and
+indexed identities. `0002` intentionally refuses a
 schema-dropping downgrade; use reviewed forward migrations and normal backups.
 Application startup never calls `create_all()`. Dependency versions are recorded
 in `requirements-dev.lock` and `frontend/package-lock.json`.
@@ -155,9 +157,9 @@ in `requirements-dev.lock` and `frontend/package-lock.json`.
 
 Implemented: local records, explicit resume selection, deterministic duplicate
 checks, application rules, manual drafting/approval, immutable audit events,
-automation-run records and the working management UI.
+automation-run records, Lead Hunter research intake and the working management UI.
 
-Not implemented: authentication, Hermes installation/bots, model/DeepSeek calls,
+Not implemented: authentication, application/portal bots, model/DeepSeek calls,
 Gmail sending, scraping/source adapters, browser/Cua automation, CAPTCHA bypass,
 automatic applications or portal submissions. These remain separate future
 integrations with credentials supplied through an external vault, human approval,
@@ -172,8 +174,8 @@ and [email style](docs/email-style.md).
 
 ## Local Hermes MCP bridge
 
-A separate stdio server now exposes 23 business tools through the existing API:
-Hermes → MCP → FastAPI → PostgreSQL. No agent, scraper, email sender or browser
+A separate stdio server now exposes 25 business tools through the existing API:
+Hermes → MCP → FastAPI → PostgreSQL. The Lead Hunter skill is implemented; no scraper, email sender or browser
 operator is implemented. The bridge does not access database credentials or ORM
 models. Email approval requires user confirmation and never sends email.
 
@@ -182,3 +184,11 @@ With FastAPI running, verify it with `.venv/bin/python scripts/check_mcp.py`.
 Register the server manually using [Hermes MCP setup](docs/hermes-mcp-setup.md)
 and the [exact configuration](docs/examples/hermes-mcp.yaml). Your existing
 `~/.hermes/config.yaml` is not modified automatically.
+
+## Lead Hunter
+
+[Setup and usage](docs/lead-hunter.md): start Hermes inside this checkout, trust
+project skills once, reload MCP/skills, then ask “Find 10 backend engineering jobs
+suitable for my profile.” Hermes supplies public research; deterministic API
+services score, deduplicate and store leads only. A bundled dry-run demo is
+available. The skill never sends email or creates/submits applications.

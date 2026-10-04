@@ -1,15 +1,15 @@
 # Hermes integration
 
 A working local MCP bridge is now available in `backend/mcp/`. It exposes the
-23 tools documented in [Hermes MCP setup](hermes-mcp-setup.md), using the SDK and
+25 tools documented in [Hermes MCP setup](hermes-mcp-setup.md), using the SDK and
 stdio configuration supported by the existing local Hermes installation. Hermes
-configuration is a manual step; this project has not changed it. No bots are
-implemented.
+configuration is already working; this project has not changed it. Lead Hunter
+is the first implemented skill; application/portal agents remain future work.
 
 The implemented path is **Hermes → stdio MCP → FastAPI → PostgreSQL**. Hermes has
 no direct database access through this bridge and does not import internal ORM
 models. All duplicate decisions, conversions and persistence remain in existing
-API services. The operator roles below remain future work.
+API services. Lead Hunter is implemented as a project skill; the other operator roles below remain future work.
 
 The API runs at `http://127.0.0.1:8000`; OpenAPI is available at `/openapi.json` and
 interactive documentation at `/docs`. JSON requests and responses use explicit
@@ -28,9 +28,9 @@ portal and model credentials belong to the integration's vault layer.
 
 ## Operators and endpoints
 
-| Future operator | Contract |
+| Operator | Contract |
 |---|---|
-| Lead Hunter | Search `/companies?search=...` for candidates, compare names/domains, create a company only when appropriate. POST `/leads` with company_id, role, source, original source URL and evidence. Source adapters stay replaceable. No scraping exists now. |
+| Lead Hunter (implemented) | Hermes public research → get_lead_hunter_context / ingest_lead_research → FastAPI matching, lead/application deduplication and storage. [Setup and workflow](lead-hunter.md). No scraping or application creation. |
 | Job Matcher | GET `/leads/{id}`, `/resumes`, `/rules`. Read the full description and responsibilities. PATCH lead category, recommended_resume_type, fit_score/fit_reason and status. Null means unassessed. Do not choose solely from title keywords or invent requirements. |
 | Application Agent | Check duplicates, explicitly choose a resume, POST `/applications`, then POST `/email-drafts` for email applications. Follow the writing guide below. Await user review and approval. |
 | Portal Agent | Read `/profile`, `/resumes`, application and lead. Prepare a form outside this service in a future integration; obtain human approval before submission and record outcomes/events. No browser tooling is implemented here. |

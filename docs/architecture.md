@@ -1,7 +1,6 @@
 # Architecture
 
-Job Application OS is the deterministic system of record. Hermes will eventually
-operate it through HTTP; it must never substitute LLM memory for stored history.
+Job Application OS is the deterministic system of record. Hermes operates it through MCP and HTTP; it must never substitute LLM memory for stored history.
 
 ```mermaid
 flowchart TD
@@ -91,7 +90,7 @@ notes, metadata, drafts or automation input/output.
 ## Implemented MCP boundary
 
 `backend/mcp/server.py` runs as a separate stdio process using official MCP SDK
-2.0.0, matching the installed Hermes client. It exposes 23 typed business tools
+2.0.0, matching the installed Hermes client. It exposes 25 typed business tools
 and talks exclusively to the loopback FastAPI origin over HTTP. It does not load
 `.env`, DATABASE_URL, SQLAlchemy, ORM models or the session layer. Shared enum
 values were extracted into `app/core/enums.py` so public Pydantic contracts are
@@ -101,7 +100,7 @@ Small API additions support normalized company resolution and transactional lead
 intake, name-based duplicate checking, contact retrieval and version-checked draft
 approval. Name resolution refuses ambiguous records instead of guessing a merge.
 The existing save_lead, duplicate and draft services perform all state changes.
-No migration or frontend change is required.
+Those original MCP helpers required no migration or frontend change.
 
 Ordinary MCP mutations are labeled hermes. Email approval uses MCP elicitation to
 obtain user consent before calling the user-only approval route. That route checks
@@ -115,3 +114,14 @@ registered. External origins, URL credentials, HTTP redirects and environment
 proxies are refused. Timeouts produce an uncertain-write warning rather than an
 automatic write retry. Stdout carries only protocol messages; no Hermes file is
 modified. See [exact setup and tool catalog](hermes-mcp-setup.md).
+
+## Lead Hunter
+
+The first Hermes workflow lives in `.hermes/skills/lead-hunter/`. Hermes supplies
+public research through MCP; `/lead-hunter/context` and `/lead-hunter/research`
+keep profile reads, normalization, explainable scoring and lead/application
+deduplication inside the API. No research code fetches external URLs. Migration
+0004 adds structured lead evidence and indexed URL identities. New leads and
+append-only research events are committed with their AutomationRun in one
+transaction. The existing frontend displays these leads and evidence unchanged.
+See [Lead Hunter](lead-hunter.md) for contracts, limits and trust setup.

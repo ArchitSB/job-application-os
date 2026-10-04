@@ -1,0 +1,28 @@
+{
+  "dry_run": true,
+  "parameters": {"max_leads": 2, "recency_days": null},
+  "results": [
+    {
+      "company_name": "FICTIONAL Lead Hunter Demo",
+      "role_title": "Backend Engineer",
+      "source": "company_portal",
+      "job_url": "https://careers.example.com/fictional-demo/backend-1",
+      "description": "FICTIONAL TEST: Build Python backend systems and FastAPI services.",
+      "location": "Bengaluru, India",
+      "employment_type": "full time",
+      "evidence_status": "page_read",
+      "research": {"skills": ["Python", "FastAPI"], "minimum_experience_years": 0, "work_mode": "hybrid", "evidence_excerpt": "FICTIONAL TEST FIXTURE, NOT A REAL JOB: Backend Engineer, Python/FastAPI, Bengaluru, fresh graduates welcome."}
+    },
+    {
+      "company_name": "FICTIONAL Lead Hunter Demo",
+      "role_title": "Backend Engineer",
+      "source": "other",
+      "job_url": "https://careers.example.com/fictional-demo/backend-1?utm_source=mock-board",
+      "description": "FICTIONAL TEST: Build Python backend systems and FastAPI services.",
+      "location": "Bengaluru, India",
+      "employment_type": "full time",
+      "evidence_status": "search_snippet",
+      "research": {"skills": ["Python", "FastAPI"], "minimum_experience_years": 0, "work_mode": "hybrid", "evidence_excerpt": "FICTIONAL DUPLICATE TEST FIXTURE: same backend opening."}
+    }
+  ]
+}

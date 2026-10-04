@@ -18,6 +18,7 @@ from pydantic import (
 )
 
 from app.core.enums import ApplicationMethod, ApplicationStatus, ResumeType
+from app.schemas.research import LeadResearch
 
 
 def http_url(value: str) -> str:
@@ -76,6 +77,7 @@ class LeadCreate(Input):
     employment_type: Annotated[str, Field(max_length=100)] | None = None
     source: Source = "other"
     source_url: URL | None = None
+    research: LeadResearch | None = None
     job_url: URL | None = None
     application_url: URL | None = None
     external_job_id: Name | None = None
